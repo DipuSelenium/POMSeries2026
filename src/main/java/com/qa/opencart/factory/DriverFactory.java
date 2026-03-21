@@ -3,7 +3,10 @@ package com.qa.opencart.factory;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.IOException;import java.nio.file.attribute.UserDefinedFileAttributeView;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.file.attribute.UserDefinedFileAttributeView;
 import java.util.Properties;
 
 import org.openqa.selenium.OutputType;
@@ -12,6 +15,8 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.remote.DesiredCapabilities;
+import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.safari.SafariDriver;
 import org.apache.commons.io.FileUtils;
 
@@ -29,9 +34,14 @@ public class DriverFactory {
 		String browser = prop.getProperty("browser").trim();
 		System.out.println("Running the tests on " + browser);
 		if (browser.equalsIgnoreCase("chrome")) {
-			tlDriver.set(new ChromeDriver(optionManager.getChromeOptions()));
+			if (Boolean.parseBoolean(prop.getProperty("remote"))) {
+				init_remoteDriver(browser);
+			} else {
+				tlDriver.set(new ChromeDriver(optionManager.getChromeOptions()));
+			}
+
 //			driver = new ChromeDriver(optionManager.getChromeOptions());
-		} else if (browser.equalsIgnoreCase("ff")) {
+		} else if (browser.equalsIgnoreCase("firefox")) {
 //			driver = new FirefoxDriver(optionManager.getFirefoxOptions());
 			tlDriver.set(new FirefoxDriver(optionManager.getFirefoxOptions()));
 		} else if (browser.equalsIgnoreCase("edge")) {
@@ -45,7 +55,34 @@ public class DriverFactory {
 		getDriver().get(prop.getProperty("url").trim());
 		return getDriver();
 	}
-	
+
+	private void init_remoteDriver(String browserName) {
+		System.out.println("Running the test in remote::" + browserName);
+		try {
+			switch (browserName) {
+			case "chrome":
+				tlDriver.set(new RemoteWebDriver(new URL(properties.getProperty("huburl")),
+						optionManager.getChromeOptions()));
+				break;
+			case "firefox":
+				tlDriver.set(new RemoteWebDriver(new URL(properties.getProperty("huburl")),
+						optionManager.getFirefoxOptions()));
+				break;
+			case "edge":
+				tlDriver.set(new RemoteWebDriver(new URL(properties.getProperty("huburl")),
+						optionManager.getEdgeOptions()));
+				break;
+
+			default:
+				System.out.println("plz pass the right browser on grid..");
+			}
+
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		}
+
+	}
+
 	public synchronized WebDriver getDriver() {
 		return tlDriver.get();
 	}
@@ -98,7 +135,7 @@ public class DriverFactory {
 		}
 		return properties;
 	}
-	
+
 	public String getScreenshot() {
 		File srcFile = ((TakesScreenshot) getDriver()).getScreenshotAs(OutputType.FILE);
 		String path = System.getProperty("user.dir") + "/screenshot/" + System.currentTimeMillis() + ".png";
