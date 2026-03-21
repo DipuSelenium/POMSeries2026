@@ -9,6 +9,6 @@ public class LoginPageTests extends BaseTest {
 	@Test
 	public void loginPageTitleTest() {
 		String titleString=loginPage.getLoginPageTitle();
-		Assert.assertEquals(titleString, "Demo","Incorrect Page Title");
+		Assert.assertEquals(titleString, "Account Login","Incorrect Page Title");
 	}
 }

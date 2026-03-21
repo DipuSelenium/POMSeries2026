@@ -32,12 +32,18 @@ public class OptionManager {
 
 		if (Boolean.parseBoolean(properties.getProperty("remote"))) {
 			chromeOptions.setCapability("browserName", "chrome");
-			chromeOptions.setBrowserVersion(properties.getProperty("browserversion").trim());
+			String browserVersion = properties.getProperty("browserversion");
+			if (browserVersion != null) {
+				chromeOptions.setBrowserVersion(browserVersion.trim());
+			}
 
 			Map<String, Object> selenoidOptions = new HashMap<>();
 			selenoidOptions.put("screenResolution", "1280x1024x24");
 			selenoidOptions.put("enableVNC", true);
-			selenoidOptions.put("name", properties.getProperty("testname"));
+			String testName = properties.getProperty("testname");
+			if (testName != null) {
+				selenoidOptions.put("name", testName);
+			}
 			chromeOptions.setCapability("selenoid:options", selenoidOptions);
 		}
 		return chromeOptions;
@@ -55,12 +61,18 @@ public class OptionManager {
 		}
 		if (Boolean.parseBoolean(properties.getProperty("remote"))) {
 			firefoxOptions.setCapability("browserName", "firefox");
-			firefoxOptions.setBrowserVersion(properties.getProperty("browserversion").trim());
+			String browserVersion = properties.getProperty("browserversion");
+			if (browserVersion != null) {
+				firefoxOptions.setBrowserVersion(browserVersion.trim());
+			}
 
 			Map<String, Object> selenoidOptions = new HashMap<>();
 			selenoidOptions.put("screenResolution", "1280x1024x24");
 			selenoidOptions.put("enableVNC", true);
-			selenoidOptions.put("name", properties.getProperty("testname"));
+			String testName = properties.getProperty("testname");
+			if (testName != null) {
+				selenoidOptions.put("name", testName);
+			}
 			firefoxOptions.setCapability("selenoid:options", selenoidOptions);		}
 
 		return firefoxOptions;
@@ -83,6 +95,10 @@ public class OptionManager {
 		}
 
 		return edgefoxOptions;
+	}
+
+	public Properties getProperties() {
+		return properties;
 	}
 
 
